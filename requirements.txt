@@ -27,3 +27,5 @@ loguru==0.7.3
 # 开发工具
 pytest==8.3.4
 ipython==8.30.0
+
+markdown==3.10

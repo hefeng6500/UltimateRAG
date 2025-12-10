@@ -137,7 +137,7 @@ cp .env.example .env
 # 2. 运行 RAG 系统
 cd /path/to/UltimateRAG
 source venv/bin/activate
-python -m stage_1.main --data ./data/documents
+python -m src.stage_1.main --data ./data/documents
 
 # 3. 开始问答
 # 输入问题即可获得回答
