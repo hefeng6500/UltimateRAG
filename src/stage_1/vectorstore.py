@@ -12,7 +12,7 @@ from loguru import logger
 
 from langchain_core.documents import Document
 from langchain_core.vectorstores import VectorStore
-from langchain_community.vectorstores import Chroma
+from langchain_chroma import Chroma
 
 from .config import Config, get_config
 from .embedder import EmbeddingModel
