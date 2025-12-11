@@ -106,8 +106,8 @@ src/stage_2/
 ```bash
 # 运行 Advanced RAG 系统
 cd /path/to/UltimateRAG
-source venv/bin/activate
-python -m stage_2.main --data ./data/documents
+source .venv/bin/activate
+python -m src.stage_2.main --data ./data/documents
 
 # 可选参数
 --no-semantic    # 禁用语义分块

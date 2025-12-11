@@ -58,7 +58,7 @@ class Config:
         load_dotenv()
         
         config = cls(
-            openai_api_key=os.getenv("OPENAI_API_KEY", ""),
+            openai_api_key=os.getenv("DASHSCOPE_API_KEY", ""),
             openai_base_url=os.getenv("OPENAI_BASE_URL"),
             model_name=os.getenv("MODEL_NAME", "gpt-4o"),
             embedding_model=os.getenv("EMBEDDING_MODEL", "text-embedding-3-small"),

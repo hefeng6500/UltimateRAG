@@ -16,10 +16,8 @@ from langchain_core.prompts import ChatPromptTemplate
 from langchain_core.output_parsers import StrOutputParser
 from langchain_openai import ChatOpenAI
 
-import sys
-sys.path.append("..")
-from stage_1.config import Config, get_config
-from stage_1.vectorstore import VectorStoreManager
+from src.stage_1.config import Config, get_config
+from src.stage_1.vectorstore import VectorStoreManager
 
 from .hybrid_retriever import HybridRetriever
 from .query_rewriter import QueryRewriter

@@ -10,9 +10,7 @@ from loguru import logger
 
 from langchain_core.documents import Document
 
-import sys
-sys.path.append("..")
-from stage_1.config import Config, get_config
+from src.stage_1.config import Config, get_config
 
 
 class Reranker:

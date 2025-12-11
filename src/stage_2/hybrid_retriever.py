@@ -13,10 +13,8 @@ from rank_bm25 import BM25Okapi
 from langchain_core.documents import Document
 from langchain_core.vectorstores import VectorStore
 
-import sys
-sys.path.append("..")
-from stage_1.config import Config, get_config
-from stage_1.vectorstore import VectorStoreManager
+from src.stage_1.config import Config, get_config
+from src.stage_1.vectorstore import VectorStoreManager
 
 
 class HybridRetriever:

@@ -12,7 +12,7 @@
 from .config import Config
 from .document_loader import DocumentLoader
 from .chunker import TextChunker
-from .embedder import EmbeddingModel
+from .embedder import EmbeddingModel, BatchedEmbeddings, ALIYUN_EMBEDDING_BATCH_SIZE
 from .vectorstore import VectorStoreManager
 from .rag_chain import RAGChain
 
@@ -21,6 +21,8 @@ __all__ = [
     "DocumentLoader", 
     "TextChunker",
     "EmbeddingModel",
+    "BatchedEmbeddings",
+    "ALIYUN_EMBEDDING_BATCH_SIZE",
     "VectorStoreManager",
     "RAGChain",
 ]

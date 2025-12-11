@@ -219,3 +219,4 @@ data/chroma_db
 data/chunks
 
 .idea
+.DS_Store

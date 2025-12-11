@@ -13,9 +13,7 @@ from loguru import logger
 from langchain_core.prompts import ChatPromptTemplate
 from langchain_openai import ChatOpenAI
 
-import sys
-sys.path.append("..")
-from stage_1.config import Config, get_config
+from src.stage_1.config import Config, get_config
 
 
 class QueryRewriter:

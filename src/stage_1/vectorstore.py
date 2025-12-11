@@ -13,6 +13,7 @@ from loguru import logger
 from langchain_core.documents import Document
 from langchain_core.vectorstores import VectorStore
 from langchain_chroma import Chroma
+from langchain_community.vectorstores.utils import filter_complex_metadata
 
 from .config import Config, get_config
 from .embedder import EmbeddingModel
@@ -110,8 +111,11 @@ class VectorStoreManager:
             logger.warning("⚠️ 没有文档需要添加")
             return []
         
-        ids = self.vectorstore.add_documents(documents)
-        logger.info(f"✅ 已添加 {len(documents)} 个文档到向量库")
+        # 过滤复杂元数据（ChromaDB 不支持列表等复杂类型）
+        filtered_documents = filter_complex_metadata(documents)
+        
+        ids = self.vectorstore.add_documents(filtered_documents)
+        logger.info(f"✅ 已添加 {len(filtered_documents)} 个文档到向量库")
         
         return ids
     

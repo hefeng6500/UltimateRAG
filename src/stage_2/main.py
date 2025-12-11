@@ -13,12 +13,9 @@ import sys
 from pathlib import Path
 from loguru import logger
 
-# 确保能导入 stage_1 的模块
-sys.path.insert(0, str(Path(__file__).parent.parent))
-
-from stage_1.config import Config, get_config
-from stage_1.document_loader import DocumentLoader
-from stage_1.vectorstore import VectorStoreManager
+from src.stage_1.config import Config, get_config
+from src.stage_1.document_loader import DocumentLoader
+from src.stage_1.vectorstore import VectorStoreManager
 
 from .semantic_chunker import SemanticChunker
 from .metadata_extractor import MetadataExtractor
@@ -42,7 +39,8 @@ def setup_logger():
 def load_and_index_documents_advanced(
     data_path: str,
     config: Config,
-    use_semantic_chunking: bool = True
+    use_semantic_chunking: bool = True,
+    force_resplit: bool = False
 ) -> tuple:
     """
     加载并索引文档（使用高级功能）
@@ -51,6 +49,7 @@ def load_and_index_documents_advanced(
         data_path: 文档路径
         config: 配置对象
         use_semantic_chunking: 是否使用语义分块
+        force_resplit: 是否强制重新分块（忽略缓存）
         
     Returns:
         tuple: (文档列表, 向量存储管理器)
@@ -74,17 +73,29 @@ def load_and_index_documents_advanced(
         logger.info("🧠 使用语义分块...")
         try:
             chunker = SemanticChunker(config)
-            chunks = chunker.split_documents(documents)
+            chunks = chunker.split_documents(
+                documents, 
+                use_cache=True, 
+                force_resplit=force_resplit
+            )
         except Exception as e:
             logger.warning(f"⚠️ 语义分块失败，回退到固定分块: {e}")
-            from stage_1.chunker import TextChunker
+            from src.stage_1.chunker import TextChunker
             chunker = TextChunker(config.chunk_size, config.chunk_overlap)
-            chunks = chunker.split_documents(documents)
+            chunks = chunker.split_documents(
+                documents, 
+                use_cache=True,
+                force_resplit=force_resplit
+            )
     else:
         logger.info("✂️ 使用固定分块...")
-        from stage_1.chunker import TextChunker
+        from src.stage_1.chunker import TextChunker
         chunker = TextChunker(config.chunk_size, config.chunk_overlap)
-        chunks = chunker.split_documents(documents)
+        chunks = chunker.split_documents(
+            documents, 
+            use_cache=True,
+            force_resplit=force_resplit
+        )
     
     # 4. 存入向量库
     logger.info("🗄️ 向量化存储...")
@@ -210,7 +221,8 @@ def main():
             chunks, vectorstore_manager = load_and_index_documents_advanced(
                 str(data_path),
                 config,
-                use_semantic_chunking=not args.no_semantic
+                use_semantic_chunking=not args.no_semantic,
+                force_resplit=args.reindex
             )
             if chunks is None:
                 return
@@ -220,13 +232,19 @@ def main():
             return
     else:
         logger.info(f"📦 使用已有向量库")
-        # 加载已有文档以构建 BM25 索引
+        # 尝试从缓存加载已有的语义分块
         if data_path.exists():
             loader = DocumentLoader()
             docs = loader.load(str(data_path))
-            from stage_1.chunker import TextChunker
-            chunker = TextChunker(config.chunk_size, config.chunk_overlap)
-            chunks = chunker.split_documents(docs)
+            # 优先使用语义分块缓存
+            if not args.no_semantic:
+                chunker = SemanticChunker(config)
+                chunks = chunker.split_documents(docs, use_cache=True)
+                logger.info(f"✅ 已加载 {len(chunks)} 个语义分块")
+            else:
+                from src.stage_1.chunker import TextChunker
+                chunker = TextChunker(config.chunk_size, config.chunk_overlap)
+                chunks = chunker.split_documents(docs)
     
     # 创建高级 RAG 链
     rag_chain = AdvancedRAGChain(
