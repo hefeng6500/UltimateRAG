@@ -152,6 +152,16 @@ class RAGChain:
         )
         
         return chain
+
+    def _answer_from_context(self, context: str, question: str) -> str:
+        return (
+            self._prompt
+            | self._llm
+            | StrOutputParser()
+        ).invoke({
+            "context": context,
+            "question": question
+        })
     
     def ask(self, question: str) -> str:
         """
@@ -166,7 +176,13 @@ class RAGChain:
         logger.info(f"❓ 收到问题: {question}")
         
         try:
-            answer = self._chain.invoke(question)
+            # answer = self._chain.invoke(question)
+            # logger.info(f"✅ 回答生成完成")
+            # return answer
+
+            docs = self.vectorstore_manager.similarity_search(question)
+            context = self._format_docs(docs)
+            answer = self._answer_from_context(context, question)
             logger.info(f"✅ 回答生成完成")
             return answer
         except Exception as e:
@@ -192,8 +208,12 @@ class RAGChain:
         context = self._format_docs(docs)
         
         # 生成回答
-        prompt = self._prompt.format(context=context, question=question)
-        answer = self._llm.invoke(prompt).content
+        # prompt = self._prompt.format(context=context, question=question)
+        # answer = self._llm.invoke(prompt).content
+
+        context = self._format_docs(docs)
+        answer = self._answer_from_context(context, question)
+
         
         # 整理来源信息
         sources = [

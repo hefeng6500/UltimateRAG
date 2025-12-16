@@ -124,7 +124,7 @@ class TextChunker:
             data.append(chunk_data)
             
             # 同时保存单独的 chunk 文件以便查看
-            chunk_file = self.chunks_dir / f"chunk_{i:04d}.md"
+            chunk_file = self.chunks_dir / f"chunk_{i:04d}.md" # i,循环时的一个整数索引. d,十进制整数. 04,宽度 4，不足左侧补 0
             self._save_single_chunk(chunk, i, chunk_file)
         
         # 保存索引文件
