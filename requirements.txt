@@ -12,7 +12,7 @@ faiss-cpu==1.13.1
 
 # 文档解析
 pypdf==6.4.0
-unstructured==0.16.11
+unstructured>=0.18.21
 python-docx==1.1.2
 
 # Embedding 模型
@@ -29,3 +29,19 @@ pytest==8.3.4
 ipython==8.30.0
 
 markdown==3.10
+
+# Stage 3: Agentic RAG 依赖
+# Web 搜索
+ddgs>=9.9.3
+
+# Pydantic (结构化输出)
+pydantic>=2.0.0
+
+# NumPy
+numpy>=2.3.5
+
+# Rank BM25
+rank-bm25>=0.2.2
+
+# Docx2txt
+docx2txt>=0.9
