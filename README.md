@@ -238,3 +238,7 @@ pytest -q
 
 - **路线图总览**：`docs/README.md`
 - **阶段总结**：`docs/stage_1/README.md`、`docs/stage_2/README.md`、`docs/stage_3/README.md`
+
+## Star History
+
+[![Star History Chart](https://api.star-history.com/svg?repos=hefeng6500/UltimateRAG&type=date&legend=top-left)](https://www.star-history.com/#hefeng6500/UltimateRAG&type=date&legend=top-left)
