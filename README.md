@@ -1,120 +1,240 @@
-# 从入门到精通的 RAG 开发路线图（Roadmap）
+# UltimateRAG
 
-分为五个阶段，从最简单的 Demo 进化到企业级、甚至科研级的 RAG 系统。
+一个按路线图逐步实现的 RAG 学习项目：从 **Naive RAG → Advanced RAG → Agentic RAG → GraphRAG & Fine-tuning → RAGOps**，在本地用 LangChain + 向量库把“文档问答”跑通，并逐步加入语义分块、混合检索、重排序、路由、自反思与工具调用等能力。
 
----
+从最简单的 Demo 进化到企业级、甚至科研级的 RAG 系统。
 
-### **阶段一：原型验证 (MVP) —— "Hello World" 级别**
-
-**目标：** 跑通流程，构建一个能用的问答机器人。
-**核心理念：** 先有再优（Make it work）。
-
-1.  **基础架构搭建：**
-
-    - **Orchestration (编排框架):** 选择 **LangChain** 或 **LlamaIndex**（推荐 LlamaIndex，更专注于数据索引优化）。
-    - **LLM:** 直接调用 API（OpenAI GPT-4o 或 DeepSeek/Qwen 等国产优秀模型），暂不考虑本地部署。
-    - **Vector DB (向量库):** 使用轻量级的 **Chroma** 或 **FAISS**，本地运行即可。
-    - **Embedding Model:** 使用通用的 OpenAI `text-embedding-3-small` 或 HuggingFace 上的 `bge-m3`。
-
-2.  **实现步骤：**
-    - **数据清洗:** 将文档（PDF/Markdown）转为纯文本。
-    - **基础分块:** 使用 `FixedSizeChunking`（例如 512 token 一个块，重叠 50 token）。
-    - **存取与生成:** 用户提问 -> 向量检索 Top-3 -> 塞入 Prompt -> LLM 回答。
-
-**✅ 阶段成果：** 一个能回答简单文档问题的 Bot，但经常答非所问，或者因为切片太碎丢失上下文。
+路线图（五阶段总规划）见：`docs/README.md`。
 
 ---
 
-### **阶段二：质量飞跃 (Advanced RAG) —— 解决“检索不准”**
+## 项目目标
 
-**目标：** 大幅提升检索的准确率（Precision）和召回率（Recall）。这是 80% 的 RAG 开发者目前所处的阶段。
-**核心理念：** 优化检索链路的每一个环节。
-
-1.  **数据层优化 (Indexing):**
-
-    - **语义分块 (Semantic Chunking):** 不再按固定字数切，而是根据语义完整性切分（例如一个完整的段落或函数）。
-    - **元数据提取 (Metadata Extraction):** 提取文件名、页码、日期、作者，用于后续的过滤（Filtering）。例如：“只检索 2024 年之后的文件”。
-
-2.  **检索层升级 (Retrieval):**
-
-    - **混合检索 (Hybrid Search):** 引入 **BM25（关键词检索）** + **向量检索**。解决“搜专有名词（如 SK-1024）搜不到”的问题。
-    - **Query Rewrite (查询重写):**
-      - _多路查询:_ 把用户的“它性能怎么样？”改写为“SK-1024 的性能参数”，并生成 3 个变体并行搜索。
-      - _HyDE:_ 让 LLM 先生成一个假答案，用假答案去搜真文档。
-
-3.  **检索后处理 (Post-Retrieval) —— **必做项**:**
-    - **Re-ranking (重排序):** 检索出 Top-50 个粗略结果，用 **BGE-Reranker** 或 **Cohere Rerank** 模型进行精细排序，只取前 5 个给 LLM。这是提升效果最明显的“银弹”。
-
-**✅ 阶段成果：** 回答准确率大幅提升，不再容易因为关键词匹配不上而瞎编。
+- **学习目标**：把 RAG 的关键链路（Indexing / Retrieval / Generation / Evaluation）按阶段拆解实现，形成可复用模块。
+- **工程目标**：每个阶段都有可运行的 `main.py` 入口 + 可验证的单测，用最小闭环体现关键技术点与 trade-off。
 
 ---
 
-### **阶段三：架构进化 (Modular & Agentic RAG) —— 解决“逻辑复杂”**
+## 路线图与当前进展（对齐 `docs/README.md`）
 
-**目标：** 让系统具备“思考”能力，处理复杂任务（不仅仅是找文档）。
-**核心理念：** RAG 不再是一条直线，而是一个动态的网络。
+| Roadmap Phase                                  | 对应实现       | 状态      | 你能在代码里看到什么                              |
+| ---------------------------------------------- | -------------- | --------- | ------------------------------------------------- |
+| Phase 1: MVP（Hello World）                    | `src/stage_1/` | ✅ 已实现 | 文档加载/分块/向量化/检索/问答闭环                |
+| Phase 2: Advanced RAG（解决检索不准）          | `src/stage_2/` | ✅ 已实现 | 语义分块、元数据、混合检索、Query Rewrite、Rerank |
+| Phase 3: Modular & Agentic RAG（解决逻辑复杂） | `src/stage_3/` | ✅ 已实现 | 路由、自反思、工具调用、父子索引、上下文压缩      |
+| Phase 4: GraphRAG & Fine-tuning（深度认知）    | -              | ⏳ 规划中 | 知识图谱、领域适配（Embedding/LLM）               |
+| Phase 5: RAGOps（持续迭代）                    | -              | ⏳ 规划中 | 评估/可观测性/自动化回归                          |
 
-1.  **路由机制 (Routing):**
+每个已实现阶段的学习总结与使用方式：
 
-    - 根据问题分类：技术问题 -> 查技术手册库；价格问题 -> 查 SQL 数据库；闲聊 -> 直接回答。
-
-2.  **Agentic RAG (代理式 RAG):**
-
-    - **Self-RAG (自反思 RAG):** LLM 生成答案后，自己给自己打分。如果觉得检索到的内容不够回答问题，它会主动发起**第二次检索**。
-    - **Tool Use (工具调用):** 让 RAG 系统拥有调用 Google 搜索、Calculator（计算器）或 Python 解释器的能力。
-
-3.  **高级上下文管理:**
-    - **Parent-Child Indexing (父子索引):** 检索时匹配小的“子块”（精准），给 LLM 时送入大的“父块”（上下文完整）。
-    - **Context Compression:** 像“挤牙膏”一样，把检索到的文档里没用的废话删掉，只保留核心句子给 LLM，节省 Token。
-
-**✅ 阶段成果：** 系统变“聪明”了，懂得拒绝回答（如果没搜到），懂得自己去网上找补充信息，能处理多步推理问题。
+- `docs/stage_1/README.md`
+- `docs/stage_2/README.md`
+- `docs/stage_3/README.md`
 
 ---
 
-### **阶段四：最强形态 (GraphRAG & Fine-tuning) —— 解决“深度认知”**
+## 每阶段技术栈与知识点（你将学到什么）
 
-**目标：** 拥有上帝视角，理解数据之间的隐性关联，并在此垂直领域达到专家级水平。
-**核心理念：** 结构化知识 + 领域适配。
+### Stage 1（Phase 1 / MVP）
 
-1.  **引入知识图谱 (GraphRAG):**
+- **技术栈**
+  - **Orchestration**：LangChain（LCEL/Runnable）
+  - **LLM / Embedding**：OpenAI-compatible API（`langchain-openai`）
+  - **Vector DB**：Chroma（`langchain-chroma`）
+  - **文档解析**：`pypdf`、`unstructured`（md）、`docx2txt`
+- **关键知识点**
+  - **文档加载**：按后缀选择 loader，统一产出 `Document`
+  - **分块策略**：固定分块 + overlap 的基本 trade-off
+  - **向量化与持久化**：Chroma 落盘、避免重复建库
+  - **最小 RAG 链**：检索 → 拼接上下文 → Prompt → 生成
+- **如何启动**
+  - `python -m src.stage_1.main --data ./data/documents`
 
-    - **技术栈:** Neo4j, NebulaGraph, 微软 GraphRAG。
-    - **场景:** 适合法律、金融、刑侦。比如：“找出 A 公司和 B 公司之间所有的资金往来路径”。向量检索对此无能为力，必须靠图谱。
-    - **实现:** 用 LLM 自动从文本中抽取实体（Entity）和关系（Relation）建图。检索时进行**图遍历**。
+### Stage 2（Phase 2 / Advanced RAG）
 
-2.  **领域微调 (Fine-tuning):**
-    - **Embedding 微调:** 如果你的领域有很多黑话（如医疗、半导体），通用的 Embedding 模型可能无法理解两个词的相似性。需要用私有数据微调 BGE 等模型。
-    - **LLM 微调:** 让模型学会特定的回复风格（如“像个严谨的律师一样说话”）。
+- **技术栈**
+  - **语义分块**：基于 embedding 相似度/阈值的 chunk 边界判断（`SemanticChunker`）
+  - **Hybrid Retrieval**：BM25（`rank-bm25`）+ 向量检索 + 融合（RRF）
+  - **Query Rewrite / HyDE**：LLM 生成多路查询、假设答案检索
+  - **Rerank**：Cross-Encoder（`sentence-transformers` CrossEncoder，BGE-Reranker）
+- **关键知识点**
+  - **召回 vs 精排**：粗检索 Top-N + 重排序取 Top-K 的“银弹”结构
+  - **关键词检索补短板**：专有名词/缩写对向量检索不友好
+  - **查询改写提升召回**：把用户表达翻译成“更可检索”的问题
+- **如何启动**
+  - `python -m src.stage_2.main --data ./data/documents`
 
-**✅ 阶段成果：** 能够回答跨文档的、全局性的概括问题（如“总结全公司过去三年在 AI 方面的战略变化”），这是目前 RAG 的天花板。
+### Stage 3（Phase 3 / Agentic RAG）
+
+- **技术栈**
+  - **Routing**：LLM 结构化输出（`pydantic`）做路由决策与兜底
+  - **Self-RAG**：相关性/质量自评估 + 多轮重检索
+  - **Tool Use**：Web 搜索（`ddgs`）、计算器、受限 Python 执行
+  - **Context 管理**：父子索引（精准匹配 + 完整上下文）、上下文压缩
+- **关键知识点**
+  - **从 Pipeline 到 Agent**：动态决策、按需调用能力与自我纠错
+  - **成本/延迟意识**：路由与多轮迭代会增加调用次数与耗时
+  - **安全边界**：代码执行沙箱与白名单控制
+- **如何启动**
+  - `python -m src.stage_3.main --data ./data/documents`
+
+### Stage 4（Phase 4 / GraphRAG & Fine-tuning）
+
+- **状态**：⏳ 规划中（路线图见 `docs/README.md`）
+- **目标**
+  - **GraphRAG**：用结构化关系（实体-关系图）增强跨文档、跨章节的关联检索与推理
+  - **Fine-tuning / 领域适配**：让 embedding/LLM 更懂领域术语、提升召回与回答风格一致性
+- **技术栈（候选）**
+  - **图数据库**：Neo4j / NebulaGraph（或微软 GraphRAG 思路）
+  - **信息抽取**：LLM 抽取实体/关系、或者规则+模型混合抽取
+  - **检索**：Graph traversal + 向量检索（Hybrid: Graph + Vector）
+  - **模型适配**：Embedding 微调、提示词/对齐、必要时 SFT/LoRA
+- **关键知识点**
+  - **向量检索的边界**：相似度无法表达“关系路径”，图检索擅长“链路/因果/关联”问题
+  - **建图成本与增量更新**：抽取质量、去重对齐、图更新策略
+- **如何启动**
+  - 暂未实现（后续会在根目录补 `src/stage_4/` 与入口）
+
+### Stage 5（Phase 5 / RAGOps）
+
+- **状态**：⏳ 规划中（路线图见 `docs/README.md`）
+- **目标**
+  - **可评估**：能量化“检索是否命中、回答是否可靠”，并沉淀可复现的基准集
+  - **可观测**：记录每次检索/生成链路的关键数据，支持 badcase 回溯与成本监控
+  - **可持续迭代**：每次改动能自动回归，避免效果回退
+- **技术栈（候选）**
+  - **评估**：RAGAS / TruLens（或自建黄金集 + 指标）
+  - **可观测**：LangSmith / Arize Phoenix（或自建 trace/log）
+  - **自动化**：CI 跑单测 + 基准评估 + 报告产出
+- **关键知识点**
+  - **离线评估 vs 在线反馈**：指标体系、数据闭环与回归策略
+  - **成本与延迟预算**：token、调用次数、模型/检索开销的可视化
+- **如何启动**
+  - 暂未实现（后续会补评估脚本与流水线配置）
 
 ---
 
-### **阶段五：工业级运维 (RAGOps) —— 持续迭代**
+## 环境要求
 
-**目标：** 监控系统健康度，量化评估效果。
-**核心理念：** 不能度量，就不能优化。
-
-1.  **评估框架 (Evaluation):**
-
-    - 搭建 **RAGAS** 或 **TruLens**。
-    - 构建“黄金数据集”（Golden Dataset）：即准备 100 个高质量的“问题-标准答案”对，每次更新代码后自动跑一遍测试。
-
-2.  **可观测性 (Observability):**
-    - 使用 **LangSmith** 或 **Arize Phoenix**。
-    - 记录每一次检索的耗时、Token 消耗、检索到的 Chunk 内容，方便由于 Bad Case（错误回答）时回溯排查。
+- **Python**：建议 3.10+
+- **网络**：需要访问你配置的 LLM/Embedding API（或 OpenAI-compatible 端点）
 
 ---
 
-### **总结：一步一步怎么走？**
+## 快速开始（统一启动流程）
 
-| 阶段        | 预计耗时 | 关键动作                        | 标志性技术                                 |
-| :---------- | :------- | :------------------------------ | :----------------------------------------- |
-| **Phase 1** | 1 周     | 跑通 LlamaIndex + OpenAI        | Naive RAG, Vector DB                       |
-| **Phase 2** | 2-4 周   | **加 Re-ranking**，搞定混合检索 | Hybrid Search, Reranker, Semantic Chunking |
-| **Phase 3** | 1-2 月   | 引入 Agent 逻辑，让它会反思     | Self-RAG, Routing, Tool Use                |
-| **Phase 4** | 2-3 月+  | 构建知识图谱，微调模型          | **GraphRAG**, Fine-tuning                  |
-| **Phase 5** | 持续     | 建立自动化测试流水线            | RAGAS, LangSmith                           |
+### 1) 安装依赖
 
-**我的建议：**
-不要一开始就做 GraphRAG，太复杂且成本高。请从 **Phase 2 (Advanced RAG)** 扎实做起，尤其是 **Re-ranking** 和 **混合检索**，这两项是投入产出比（ROI）最高的技术。
+```bash
+python -m venv .venv
+
+# Windows (PowerShell)
+# .\.venv\Scripts\Activate.ps1
+
+# Git Bash / macOS / Linux
+# source .venv/bin/activate
+
+pip install -r requirements.txt
+```
+
+### 2) 配置 `.env`
+
+以根目录 `.env.example` 为模板创建 `.env`：
+
+```bash
+# Git Bash / macOS / Linux
+cp .env.example .env
+```
+
+Windows（PowerShell）：
+
+```powershell
+Copy-Item .env.example .env
+```
+
+至少配置一个 API Key（二选一即可）：
+
+- **`OPENAI_API_KEY`**：OpenAI / OpenAI-compatible（DeepSeek、Qwen、Moonshot 等）
+- **`DASHSCOPE_API_KEY`**：阿里云 DashScope（OpenAI 兼容）
+
+常用可选项：
+
+- **`OPENAI_BASE_URL`**：OpenAI-compatible Base URL
+- **`MODEL_NAME`**：默认 `gpt-4o`
+- **`EMBEDDING_MODEL`**：默认 `text-embedding-3-small`
+- **`CHROMA_PERSIST_DIR`**：默认 `./data/chroma_db`
+
+### 3) 准备数据
+
+默认读取 `./data/documents`，支持：`.pdf / .md / .txt / .docx`。
+
+### 4) 启动任一阶段
+
+- Stage 1：`python -m src.stage_1.main --data ./data/documents`
+- Stage 2：`python -m src.stage_2.main --data ./data/documents`
+- Stage 3：`python -m src.stage_3.main --data ./data/documents`
+
+---
+
+## 启动参数与交互命令
+
+### Stage 1
+
+- **参数**：`--reindex`
+- **交互**：`sources`（显示/隐藏来源）、`quit/exit/q`
+
+### Stage 2
+
+- **参数**：`--reindex`、`--no-semantic`、`--no-rerank`
+- **交互**：`detail`（详细信息）
+
+### Stage 3
+
+- **参数**：`--reindex`、`--no-semantic`、`--no-routing`、`--no-self-rag`、`--no-tools`、`--no-parent-child`、`--no-compression`
+- **交互**：`help`（能力说明）、`detail`（详细信息）
+
+---
+
+## 向量库与缓存说明
+
+- Chroma 默认落盘在 `CHROMA_PERSIST_DIR`（默认 `./data/chroma_db`）
+- 不同阶段使用不同集合名：
+  - Stage 1：`rag_documents`
+  - Stage 2：`advanced_rag`
+  - Stage 3：`agentic_rag`
+
+---
+
+## 测试
+
+建议显式设置 `PYTHONPATH=src`：
+
+```bash
+# Git Bash / macOS / Linux
+PYTHONPATH=src pytest -q
+```
+
+Windows（PowerShell）：
+
+```powershell
+$env:PYTHONPATH="src"
+pytest -q
+```
+
+---
+
+## 常见问题（Troubleshooting）
+
+- **启动时报 “OPENAI_API_KEY / DASHSCOPE_API_KEY 未设置”**
+  - 确认根目录存在 `.env` 且填写了 `OPENAI_API_KEY` 或 `DASHSCOPE_API_KEY`
+- **加载 `.pdf/.docx` 报错**
+  - 依赖：`pypdf / unstructured / python-docx / docx2txt`；若遇到系统级依赖问题，可先用 `.md/.txt` 验证主流程
+- **Stage 2 重排序首次运行很慢**
+  - `sentence-transformers` 会下载 CrossEncoder 模型，属于正常现象
+
+---
+
+## 文档索引
+
+- **路线图总览**：`docs/README.md`
+- **阶段总结**：`docs/stage_1/README.md`、`docs/stage_2/README.md`、`docs/stage_3/README.md`

@@ -56,9 +56,14 @@ class Config:
         """
         # 加载 .env 文件
         load_dotenv()
+
+        # 兼容不同供应商/命名习惯：
+        # - OPENAI_API_KEY: OpenAI / OpenAI-compat（DeepSeek、Moonshot、Qwen 等）常用
+        # - DASHSCOPE_API_KEY: 阿里云 DashScope 常用
+        api_key = os.getenv("OPENAI_API_KEY") or os.getenv("DASHSCOPE_API_KEY") or ""
         
         config = cls(
-            openai_api_key=os.getenv("DASHSCOPE_API_KEY", ""),
+            openai_api_key=api_key,
             openai_base_url=os.getenv("OPENAI_BASE_URL"),
             model_name=os.getenv("MODEL_NAME", "gpt-4o"),
             embedding_model=os.getenv("EMBEDDING_MODEL", "text-embedding-3-small"),
@@ -70,7 +75,7 @@ class Config:
         
         # 验证必要配置
         if not config.openai_api_key:
-            logger.warning("未设置 OPENAI_API_KEY，请在 .env 文件中配置")
+            logger.warning("未设置 OPENAI_API_KEY / DASHSCOPE_API_KEY，请在 .env 文件中配置")
         
         logger.info(f"✅ 配置加载完成: 模型={config.model_name}, 分块大小={config.chunk_size}")
         return config
@@ -83,7 +88,7 @@ class Config:
             bool: 配置是否有效
         """
         if not self.openai_api_key:
-            logger.error("❌ OPENAI_API_KEY 未设置")
+            logger.error("❌ OPENAI_API_KEY / DASHSCOPE_API_KEY 未设置")
             return False
         return True
 
