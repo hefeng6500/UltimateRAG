@@ -62,6 +62,13 @@ AGENTIC_RAG_PROMPT = """你是一个智能问答助手，具备深度分析和�
 3. 条理性：使用清晰的结构组织答案
 4. 诚实性：如果信息不足，请明确说明
 
+同时，允许你：
+- 归纳总结
+- 风格分析
+- 观点选择
+- 句子评价
+- 合理推断（必须基于文档给出的内容）
+
 请用中文回答："""
 
 # 直接回答提示词（不需要检索）
@@ -91,7 +98,8 @@ class AgenticRAGChain:
         enable_tools: bool = True,
         enable_parent_child: bool = True,
         enable_compression: bool = True,
-        enable_reranking: bool = True
+        enable_reranking: bool = True,
+        force_reindex: bool = False
     ):
         """
         初始化 Agentic RAG 链
@@ -117,6 +125,7 @@ class AgenticRAGChain:
         self.enable_parent_child = enable_parent_child
         self.enable_compression = enable_compression
         self.enable_reranking = enable_reranking
+        self.force_reindex = force_reindex
         
         # 初始化 LLM
         self._llm = self._create_llm()
@@ -176,14 +185,28 @@ class AgenticRAGChain:
         
         # 5. 父子索引检索器
         if self.enable_parent_child and documents:
+            pc_vectorstore_manager = VectorStoreManager(
+                self.base_config,
+                collection_name="parent_child_index"
+            )
+            
+            # 如果强制重建索引，先清空
+            if self.force_reindex:
+                pc_vectorstore_manager.clear()
+                logger.info("🗑️ 已清空父子索引向量库")
+            
             self._parent_child_retriever = ParentChildRetriever(
                 config=self.config,
-                vectorstore_manager=VectorStoreManager(
-                    self.base_config,
-                    collection_name="parent_child_index"
-                )
+                vectorstore_manager=pc_vectorstore_manager
             )
-            self._parent_child_retriever.add_documents(documents)
+            # 只有当向量库为空或强制重建时才添加文档，避免重复添加
+            if self.force_reindex or pc_vectorstore_manager.vectorstore._collection.count() == 0:
+                self._parent_child_retriever.add_documents(documents)
+            else:
+                logger.info(
+                    f"📦 使用已有父子索引: "
+                    f"{pc_vectorstore_manager.vectorstore._collection.count()} 个子块"
+                )
         else:
             self._parent_child_retriever = None
         

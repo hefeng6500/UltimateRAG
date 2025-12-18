@@ -313,7 +313,8 @@ def main():
         enable_self_rag=not args.no_self_rag,
         enable_tools=not args.no_tools,
         enable_parent_child=not args.no_parent_child,
-        enable_compression=not args.no_compression
+        enable_compression=not args.no_compression,
+        force_reindex=args.reindex
     )
     
     # 启动交互

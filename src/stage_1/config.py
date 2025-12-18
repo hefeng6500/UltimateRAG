@@ -60,7 +60,8 @@ class Config:
         # 兼容不同供应商/命名习惯：
         # - OPENAI_API_KEY: OpenAI / OpenAI-compat（DeepSeek、Moonshot、Qwen 等）常用
         # - DASHSCOPE_API_KEY: 阿里云 DashScope 常用
-        api_key = os.getenv("OPENAI_API_KEY") or os.getenv("DASHSCOPE_API_KEY") or ""
+        # api_key = os.getenv("OPENAI_API_KEY") or ""
+        api_key = os.getenv("DASHSCOPE_API_KEY") or ""
         
         config = cls(
             openai_api_key=api_key,
