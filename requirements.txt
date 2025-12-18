@@ -45,3 +45,23 @@ rank-bm25>=0.2.2
 
 # Docx2txt
 docx2txt>=0.9
+
+# Stage 4: GraphRAG & Fine-tuning 依赖
+# Neo4j 图数据库 (可选)
+neo4j>=6.0.3
+
+# 数据处理和科学计算
+scikit-learn>=1.8.0
+
+# NetworkX 图算法 (用于内存图存储)
+networkx>=3.6.1
+
+# 社区检测 (可选)
+# python-louvain>=0.16
+
+# Sentence Transformers 微调
+# torch>=2.0.0  # 如果需要 GPU 微调，请安装对应 CUDA 版本
+# accelerate>=0.20.0
+
+# 数据导出
+pandas>=2.3.3
