@@ -75,10 +75,10 @@ class Stage4Config(Stage3Config):
     # Neo4j 配置
     # ===================
     
-    neo4j_uri: str = "neo4j://127.0.0.1:7687"
-    neo4j_username: str = "neo4j"
-    neo4j_password: str = ""
-    neo4j_database: str = "neo4j"
+    neo4j_uri: str = os.getenv("NEO4J_URI", "neo4j://127.0.0.1:7687")
+    neo4j_username: str = os.getenv("NEO4J_USERNAME", "neo4j")
+    neo4j_password: str = os.getenv("NEO4J_PASSWORD", "")
+    neo4j_database: str = os.getenv("NEO4J_DATABASE", "neo4j")
     
     # ===================
     # Embedding 微调配置

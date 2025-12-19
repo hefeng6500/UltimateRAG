@@ -1,5 +1,9 @@
 # UltimateRAG
 
+![Python](https://img.shields.io/badge/Python-3.12%2B-blue)
+![LangChain](https://img.shields.io/badge/LangChain-v1.x-orange)
+![License](https://img.shields.io/badge/License-MIT-green)
+
 一个按路线图逐步实现的 RAG 学习项目：从 **Naive RAG → Advanced RAG → Agentic RAG → GraphRAG & Fine-tuning → RAGOps**，在本地用 LangChain + 向量库把“文档问答”跑通，并逐步加入语义分块、混合检索、重排序、路由、自反思与工具调用等能力。
 
 从最简单的 Demo 进化到企业级、甚至科研级的 RAG 系统。
@@ -238,6 +242,10 @@ pytest -q
 
 - **路线图总览**：`docs/README.md`
 - **阶段总结**：`docs/stage_1/README.md`、`docs/stage_2/README.md`、`docs/stage_3/README.md`
+
+## 加入组织一起交流 AI 技术
+
+<img src="./data/images/wechat_group.jpeg" alt="微信群二维码" width="300" />
 
 ## Star History
 
