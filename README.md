@@ -84,7 +84,6 @@
 
 ### Stage 4（Phase 4 / GraphRAG & Fine-tuning）
 
-- **状态**：⏳ 规划中（路线图见 `docs/README.md`）
 - **目标**
   - **GraphRAG**：用结构化关系（实体-关系图）增强跨文档、跨章节的关联检索与推理
   - **Fine-tuning / 领域适配**：让 embedding/LLM 更懂领域术语、提升召回与回答风格一致性
