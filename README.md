@@ -26,7 +26,7 @@
 | Phase 1: MVP（Hello World）                    | `src/stage_1/` | ✅ 已实现 | 文档加载/分块/向量化/检索/问答闭环                |
 | Phase 2: Advanced RAG（解决检索不准）          | `src/stage_2/` | ✅ 已实现 | 语义分块、元数据、混合检索、Query Rewrite、Rerank |
 | Phase 3: Modular & Agentic RAG（解决逻辑复杂） | `src/stage_3/` | ✅ 已实现 | 路由、自反思、工具调用、父子索引、上下文压缩      |
-| Phase 4: GraphRAG & Fine-tuning（深度认知）    | -              | ⏳ 规划中 | 知识图谱、领域适配（Embedding/LLM）               |
+| Phase 4: GraphRAG & Fine-tuning（深度认知）    | -              | ✅ 已实现 | 知识图谱、领域适配（Embedding/LLM）               |
 | Phase 5: RAGOps（持续迭代）                    | -              | ⏳ 规划中 | 评估/可观测性/自动化回归                          |
 
 每个已实现阶段的学习总结与使用方式：
@@ -84,7 +84,6 @@
 
 ### Stage 4（Phase 4 / GraphRAG & Fine-tuning）
 
-- **状态**：⏳ 规划中（路线图见 `docs/README.md`）
 - **目标**
   - **GraphRAG**：用结构化关系（实体-关系图）增强跨文档、跨章节的关联检索与推理
   - **Fine-tuning / 领域适配**：让 embedding/LLM 更懂领域术语、提升召回与回答风格一致性

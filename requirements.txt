@@ -38,7 +38,7 @@ ddgs>=9.9.3
 pydantic>=2.0.0
 
 # NumPy
-numpy>=2.3.5
+numpy>=1.26.4
 
 # Rank BM25
 rank-bm25>=0.2.2
@@ -65,3 +65,13 @@ networkx>=3.6.1
 
 # 数据导出
 pandas>=2.3.3
+
+huggingface-hub==0.34.0
+transformers==4.56.2
+
+# Stage 4: 本地 LLM 微调依赖
+peft>=0.15.0           # LoRA 微调
+datasets>=3.6.0        # 数据集处理
+torch>=2.0.0           # PyTorch (CPU 版本)
+accelerate>=1.7.0      # 训练加速器
+trl>=0.18.1            # SFT 训练器

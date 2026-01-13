@@ -13,6 +13,7 @@ Stage 4 是 UltimateRAG 的最高阶段，实现了知识图谱增强的 RAG (Gr
 | **全局摘要** | 基于社区检测生成全局性摘要 |
 | **Embedding 微调** | 使用私有数据微调 Embedding 模型 |
 | **LLM 微调数据** | 自动生成高质量的微调训练数据 |
+| **本地 LLM 微调** | 🆕 使用 LoRA 在本地设备上微调开源大模型 |
 
 ---
 
@@ -210,6 +211,43 @@ finetuner.export_jsonl(qa_pairs, "train.jsonl")  # OpenAI 格式
 finetuner.export_alpaca(qa_pairs, "train_alpaca.json")  # Alpaca 格式
 ```
 
+#### 本地 LLM 微调 (LoRA) 🆕
+
+使用 LoRA 技术在本地设备上微调开源大模型：
+
+```python
+from src.stage_4.fine_tuning import quick_finetune
+
+# 一键微调（使用默认配置）
+result = quick_finetune(
+    data_path="./data/finetune/train_alpaca.json",
+    model="Qwen/Qwen2.5-0.5B-Instruct",  # 推荐小模型
+    epochs=3
+)
+```
+
+自定义配置：
+
+```python
+from src.stage_4.fine_tuning import LocalLLMFineTuner, LocalFineTuneConfig
+
+config = LocalFineTuneConfig(
+    base_model="Qwen/Qwen2.5-1.5B-Instruct",
+    output_dir="./models/my_finetuned_model",
+    lora_rank=8,
+    epochs=3,
+    device="cpu",  # 支持 cpu / cuda / mps
+)
+
+finetuner = LocalLLMFineTuner(config)
+finetuner.run_full_pipeline("./data/finetune/train_alpaca.json")
+
+# 使用微调后的模型
+response = finetuner.chat("小米公司是什么时候成立的？")
+```
+
+> 📖 详细文档请参考 [LocalFineTune.md](./LocalFineTune.md)
+
 ---
 
 ## 🔧 配置说明
@@ -257,8 +295,8 @@ class Stage4Config(Stage3Config):
 │  │ • EntityExtractor    │    │ • EmbeddingFineTuner │          │
 │  │ • RelationExtractor  │    │ • LLMFineTuner       │          │
 │  │ • KnowledgeGraph     │    │ • TrainingDataGen    │          │
-│  │ • GraphStore         │    │                      │          │
-│  │ • GraphRetriever     │    │                      │          │
+│  │ • GraphStore         │    │ • LocalLLMFineTuner  │ 🆕       │
+│  │ • GraphRetriever     │    │   (LoRA 微调)        │          │
 │  │ • GraphRAGChain      │    │                      │          │
 │  └──────────┬───────────┘    └───────────┬──────────┘          │
 │             │                            │                      │
@@ -326,7 +364,7 @@ graph_rag.set_embedding_model("./models/medical_embedding")
 1. **性能考虑**
    - 实体/关系抽取会增加 LLM 调用，建议批量处理
    - 大规模图谱建议使用 Neo4j
-   - 微调需要较大显存
+   - Embedding 微调需要 GPU 效果更好
 
 2. **成本控制**
    - 设置合理的 `max_entities_per_chunk`
@@ -337,6 +375,12 @@ graph_rag.set_embedding_model("./models/medical_embedding")
    - 抽取质量依赖于 LLM 能力
    - 建议人工审核关键实体/关系
    - 定期清理冗余实体
+
+4. **本地 LLM 微调** 🆕
+   - CPU 训练速度较慢，建议使用小模型（0.5B-1.5B）
+   - 16GB 内存推荐使用 Qwen2.5-0.5B 或 1.5B
+   - LoRA rank 越小内存需求越低（推荐 4-8）
+   - 详见 [LocalFineTune.md](./LocalFineTune.md)
 
 ---
 
@@ -357,4 +401,7 @@ graph_rag.set_embedding_model("./models/medical_embedding")
 - [Microsoft GraphRAG 论文](https://arxiv.org/abs/2404.16130)
 - [Neo4j 官方文档](https://neo4j.com/docs/)
 - [Sentence Transformers 微调指南](https://www.sbert.net/docs/training/overview.html)
+- [LoRA 论文](https://arxiv.org/abs/2106.09685) 🆕
+- [PEFT 官方文档](https://huggingface.co/docs/peft) 🆕
+- [Qwen2.5 模型](https://huggingface.co/Qwen) 🆕
 
