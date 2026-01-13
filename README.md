@@ -244,8 +244,10 @@ pytest -q
 
 ## 加入组织一起交流 AI 技术
 
-<img src="./data/images/my_wechat.jpg" alt="我的微信" width="300" />
-<img src="./data/images/wechat_group.jpeg" alt="微信群二维码" width="300" />
+<div align="center" style="display: flex; align-items: flex-end; gap: 20px;">
+  <img src="./data/images/my_wechat.jpg" alt="我的微信" width="300" style="object-fit: contain;"/>
+  <img src="./data/images/wechat_group.jpeg" alt="微信群二维码" width="300" style="object-fit: contain;" />
+</div>
 
 ## Star History
 
